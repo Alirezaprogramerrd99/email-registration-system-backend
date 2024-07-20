@@ -8,6 +8,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     pass
 
+# for returing when we want to retrive it from the database and wrap it into the JSON.
 class User(UserBase):
     id: int
     registered_at: datetime
@@ -22,9 +23,11 @@ class LetterBase(BaseModel):
 class LetterCreate(LetterBase):
     pass
 
-class Letter(LetterBase):
+# for returing when we want to retrive it from the database and wrap it into the JSON.
+class Letter(LetterBase):   
     id: int
     created_at: datetime
+    is_sent: bool
     user_id: int
 
     class Config:

@@ -10,12 +10,17 @@ def test_database_operations():
     db = database.SessionLocal()
 
     # Create a new user
-    user_create = schemas.UserCreate(email="testuser@example.com")
+    TEST_EMAIL = "testuser@example.com"
+    if crud.get_user_by_email(db, TEST_EMAIL) is not None:
+        deleted_user = crud.delete_user_by_email(db, TEST_EMAIL)
+        print(f"Deleted User: {deleted_user}")
+
+    user_create = schemas.UserCreate(email=TEST_EMAIL)
     user = crud.create_user(db=db, user=user_create)
     print(f"Created User: {user}")
 
     # Get user by email
-    user = crud.get_user_by_email(db, email="testuser@example.com")
+    user = crud.get_user_by_email(db, email=TEST_EMAIL)
     print(f"Fetched User: {user}")
 
     # Create a new letter
