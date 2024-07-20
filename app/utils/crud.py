@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.model import models
 from app.utils import schemas
 
@@ -34,8 +34,8 @@ def get_letters(db: Session):
     return db.query(models.Letter).all()
 
 def create_letter(db: Session, letter: schemas.LetterCreate, user_id: int):
-    db_letter = models.Letter(**letter.dict(), user_id=user_id)
-    # db_letter = models.Letter(dict(letter), user_id=user_id)
+    # db_letter = models.Letter(**letter.dict(), user_id=user_id)
+    db_letter = models.Letter(**dict(letter), user_id=user_id)
     db.add(db_letter)
     db.commit()
     db.refresh(db_letter)
@@ -51,7 +51,8 @@ def get_unsent_latters(db: Session):
     return db.query(models.Letter).filter(models.Letter.sent == False).all()
 
 def get_letters_from_last_month(db: Session):
-    one_month_ago = datetime.utcnow() - timedelta(days=30)
+    # one_month_ago = datetime.utcnow() - timedelta(days=30)
+    one_month_ago = datetime.now(timezone.utc) - timedelta(days=30)
     return db.query(models.Letter).filter(models.Letter.created_at >= one_month_ago).all()
 
 def get_users_pagination(db: Session, skip: int = 0, limit: int = 10):
