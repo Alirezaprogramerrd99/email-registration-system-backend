@@ -154,3 +154,5 @@ mnt*
 ./mnt*
 
 *.xlsx
+
+celerybeat-schedule

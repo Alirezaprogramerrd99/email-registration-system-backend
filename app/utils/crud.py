@@ -25,6 +25,10 @@ def delete_user_by_email(db: Session, email: str):
     db.commit()
     return db_user
 
+def delete_all_users(db: Session):
+    db.query(models.User).delete()
+    db.commit()
+
 # ------------------------------------- Letters Crud -------------------------------
 
 def get_letter(db: Session, letter_id: int):
@@ -66,3 +70,7 @@ def delete_letter(db: Session, letter_id: int):
     db.delete(db_letter)
     db.commit()
     return db_letter
+
+def delete_all_letters(db: Session):
+    db.query(models.Letter).delete()
+    db.commit()

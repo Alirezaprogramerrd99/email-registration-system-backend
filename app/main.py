@@ -47,6 +47,11 @@ def delete_user_using_email(user_email: str, db: Session = Depends(database.get_
     deleted_user = crud.delete_user_by_email(db, email=user_email)
     return deleted_user
 
+@app.delete("/users/delete-all", response_model=dict)
+def delete_all_users(db: Session = Depends(database.get_db)):
+    crud.delete_all_users(db)
+    return {"detail": "All users deleted"}
+
 #--------------------------- Letters' Endpoints --------------------------------------
 
 @app.post("/letters/", response_model=schemas.Letter)
@@ -76,5 +81,10 @@ def delete_letter_from_system(letter_id: int, db: Session = Depends(database.get
         raise HTTPException(status_code=404, detail="Letter not found")
     deleted_letter = crud.delete_letter(db, letter_id=letter_id)
     return deleted_letter
+
+@app.delete("/letters/delete-all", response_model=dict)
+def delete_all_letters(db: Session = Depends(database.get_db)):
+    crud.delete_all_letters(db)
+    return {"detail": "All letters deleted"}
     
     

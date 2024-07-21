@@ -17,7 +17,7 @@ source backend-venv/bin/activate
 echo "Starting FastAPI server..."
 # uvicorn app.main:app --reload &
 
-fastapi dev main.py &
+fastapi dev app/main.py &
 
 # Give FastAPI some time to start
 sleep 6
