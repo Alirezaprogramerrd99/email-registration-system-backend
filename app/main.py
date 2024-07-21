@@ -37,6 +37,11 @@ def read_users_pagination(skip: int = 0, limit: int = 10, db: Session = Depends(
         raise HTTPException(status_code=404, detail="No user found")
     return users
 
+@app.delete("/users/delete-all", response_model=dict)
+def delete_all_users(db: Session = Depends(database.get_db)):
+    crud.delete_all_users(db)
+    return {"detail": "All users deleted"}
+
 
 @app.delete("/users/{user_email}", response_model=schemas.User)
 def delete_user_using_email(user_email: str, db: Session = Depends(database.get_db)):
@@ -47,14 +52,9 @@ def delete_user_using_email(user_email: str, db: Session = Depends(database.get_
     deleted_user = crud.delete_user_by_email(db, email=user_email)
     return deleted_user
 
-@app.delete("/users/delete-all", response_model=dict)
-def delete_all_users(db: Session = Depends(database.get_db)):
-    crud.delete_all_users(db)
-    return {"detail": "All users deleted"}
-
 #--------------------------- Letters' Endpoints --------------------------------------
 
-@app.post("/letters/", response_model=schemas.Letter)
+@app.post("/letters/create", response_model=schemas.Letter)
 def create_letter(letter: schemas.LetterCreate, db: Session = Depends(database.get_db)):
     check_and_send_emails()
     return crud.create_letter(db=db, letter=letter)
@@ -73,6 +73,11 @@ def get_all_unsent_letters(db: Session = Depends(database.get_db)):
         raise HTTPException (status_code=404, detail="No unsent letter found")
     return unsent_letters
 
+@app.delete("/letters/delete-all", response_model=dict)
+def delete_all_letters(db: Session = Depends(database.get_db)):
+    crud.delete_all_letters(db)
+    return {"detail": "All letters deleted"}
+
 @app.delete("/letters/{letter_id}", response_model=schemas.Letter)
 def delete_letter_from_system(letter_id: int, db: Session = Depends(database.get_db)):
 
@@ -82,9 +87,6 @@ def delete_letter_from_system(letter_id: int, db: Session = Depends(database.get
     deleted_letter = crud.delete_letter(db, letter_id=letter_id)
     return deleted_letter
 
-@app.delete("/letters/delete-all", response_model=dict)
-def delete_all_letters(db: Session = Depends(database.get_db)):
-    crud.delete_all_letters(db)
-    return {"detail": "All letters deleted"}
+
     
     
