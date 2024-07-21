@@ -27,6 +27,9 @@ def delete_user_by_email(db: Session, email: str):
 
 # ------------------------------------- Letters Crud -------------------------------
 
+def get_letter(db: Session, letter_id: int):
+    return db.query(models.Letter).filter(models.Letter.id == letter_id).first()
+
 def get_letters_pagination(db: Session, skip: int = 0, limit: int = 10):
     return db.query(models.Letter).offset(skip).limit(limit).all()
 
@@ -57,3 +60,9 @@ def get_letters_from_last_month(db: Session):
 
 def get_users_pagination(db: Session, skip: int = 0, limit: int = 10):
     return db.query(models.User).offset(skip).limit(limit).all()
+
+def delete_letter(db: Session, letter_id: int):
+    db_letter = db.query(models.Letter).filter(models.Letter.id == letter_id).first()
+    db.delete(db_letter)
+    db.commit()
+    return db_letter

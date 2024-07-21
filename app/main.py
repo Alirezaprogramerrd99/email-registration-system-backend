@@ -5,6 +5,7 @@ import app.database as database
 from app.database import engine
 from app.model.models import Base
 from app.utils import crud, schemas
+from app.celery_worker import check_and_send_emails, send_past_emails_to_new_user
 
 # Create tables if they don't exist
 # Base.metadata.create_all(bind=engine)
@@ -13,14 +14,14 @@ app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
-@app.post("/users/", response_model=schemas.User)
+@app.post("/users/create/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    user = crud.create_user(db=db, user=user)
-    # send_past_emails_to_new_user.delay(user.id)
-    return user
+    new_user = crud.create_user(db=db, user=user)
+    send_past_emails_to_new_user.delay(new_user.id)
+    return new_user
 
 @app.get("/users/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(database.get_db)):
@@ -29,7 +30,7 @@ def read_user(user_id: int, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-@app.get("/users/", response_model=List[schemas.User])
+@app.get("/users/read/", response_model=List[schemas.User])
 def read_users_pagination(skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db)):
     users = crud.get_users_pagination(db, skip=skip, limit=limit)
     if users is None:
@@ -37,10 +38,20 @@ def read_users_pagination(skip: int = 0, limit: int = 10, db: Session = Depends(
     return users
 
 
+@app.get("/users/{user_email}", response_model=List[schemas.User])
+def delete_user_using_email(user_email: str, db: Session = Depends(database.get_db)):
+    db_user = crud.get_user_by_email(db, email=user_email)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    deleted_user = crud.delete_user_by_email(db, email=user_email)
+    return deleted_user
+
 #--------------------------- Letters' Endpoints --------------------------------------
 
 @app.post("/letters/", response_model=schemas.Letter)
 def create_letter(letter: schemas.LetterCreate, user_id: int, db: Session = Depends(database.get_db)):
+    check_and_send_emails()
     return crud.create_letter(db=db, letter=letter, user_id=user_id)
 
 @app.get("/letters/", response_model=List[schemas.Letter])
@@ -54,3 +65,14 @@ def get_all_unsent_letters(db: Session = Depends(database.get_db)):
     if unsent_letters is None:
         raise HTTPException (status_code=404, detail="No unsent letter found")
     return unsent_letters
+
+@app.get("/letters/{letter_id}", response_model=schemas.Letter)
+def delete_letter_from_system(letter_id: int, db: Session = Depends(database.get_db)):
+
+    db_letter = crud.get_letter(db, letter_id=letter_id)
+    if db_letter is None:
+        raise HTTPException(status_code=404, detail="Letter not found")
+    deleted_letter = crud.delete_letter(db, letter_id=letter_id)
+    return deleted_letter
+    
+    
