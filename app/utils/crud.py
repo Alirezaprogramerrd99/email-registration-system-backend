@@ -36,9 +36,9 @@ def get_letters_pagination(db: Session, skip: int = 0, limit: int = 10):
 def get_letters(db: Session):
     return db.query(models.Letter).all()
 
-def create_letter(db: Session, letter: schemas.LetterCreate, user_id: int):
+def create_letter(db: Session, letter: schemas.LetterCreate):
     # db_letter = models.Letter(**letter.dict(), user_id=user_id)
-    db_letter = models.Letter(**dict(letter), user_id=user_id)
+    db_letter = models.Letter(**dict(letter))
     db.add(db_letter)
     db.commit()
     db.refresh(db_letter)

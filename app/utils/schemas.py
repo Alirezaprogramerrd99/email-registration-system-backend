@@ -26,9 +26,11 @@ class LetterCreate(LetterBase):
 # for returing when we want to retrive it from the database and wrap it into the JSON.
 class Letter(LetterBase):   
     id: int
+    title: str
+    content: str
     created_at: datetime
-    is_sent: bool
-    user_id: int
+    sent: bool
+    # user_id: Optional[int]
 
     class Config:
         orm_mode: True

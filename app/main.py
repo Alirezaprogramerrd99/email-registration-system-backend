@@ -38,7 +38,7 @@ def read_users_pagination(skip: int = 0, limit: int = 10, db: Session = Depends(
     return users
 
 
-@app.get("/users/{user_email}", response_model=List[schemas.User])
+@app.delete("/users/{user_email}", response_model=schemas.User)
 def delete_user_using_email(user_email: str, db: Session = Depends(database.get_db)):
     db_user = crud.get_user_by_email(db, email=user_email)
     if db_user is None:
@@ -50,23 +50,25 @@ def delete_user_using_email(user_email: str, db: Session = Depends(database.get_
 #--------------------------- Letters' Endpoints --------------------------------------
 
 @app.post("/letters/", response_model=schemas.Letter)
-def create_letter(letter: schemas.LetterCreate, user_id: int, db: Session = Depends(database.get_db)):
+def create_letter(letter: schemas.LetterCreate, db: Session = Depends(database.get_db)):
     check_and_send_emails()
-    return crud.create_letter(db=db, letter=letter, user_id=user_id)
+    return crud.create_letter(db=db, letter=letter)
 
-@app.get("/letters/", response_model=List[schemas.Letter])
+@app.get("/letters/read", response_model=List[schemas.Letter])
 def read_letters_pagination(skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db)):
     letters = crud.get_letters_pagination(db, skip=skip, limit=limit)
+    if letters is None:
+        raise HTTPException(status_code=404, detail="No letter found")
     return letters
 
-@app.get("/letters/", response_model=List[schemas.Letter])
+@app.get("/letters/unsent", response_model=List[schemas.Letter])
 def get_all_unsent_letters(db: Session = Depends(database.get_db)):
     unsent_letters = crud.get_unsent_latters(db)
     if unsent_letters is None:
         raise HTTPException (status_code=404, detail="No unsent letter found")
     return unsent_letters
 
-@app.get("/letters/{letter_id}", response_model=schemas.Letter)
+@app.delete("/letters/{letter_id}", response_model=schemas.Letter)
 def delete_letter_from_system(letter_id: int, db: Session = Depends(database.get_db)):
 
     db_letter = crud.get_letter(db, letter_id=letter_id)

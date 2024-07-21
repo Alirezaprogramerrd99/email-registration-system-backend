@@ -10,7 +10,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     registered_at = Column(DateTime, default=datetime.now(timezone.utc))
-    letters = relationship("Letter", back_populates="owner")
+    # letters = relationship("Letter", back_populates="owner")
 
 class Letter(Base):
     __tablename__ = 'letters'
@@ -20,5 +20,5 @@ class Letter(Base):
     content = Column(String)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     sent = Column(Boolean, default=False)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    owner = relationship("User", back_populates="letters")
+    # user_id = Column(Integer, ForeignKey('users.id'))
+    # owner = relationship("User", back_populates="letters")

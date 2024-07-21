@@ -10,11 +10,18 @@ from celery.schedules import crontab
 import os
 from dotenv import load_dotenv
 
+load_dotenv()
 
 # Create a Celery instance
-celery_app = Celery('tasks', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+# celery_app = Celery('tasks', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+redis_password = os.getenv('REDIS_PASSWORD', 'your_redis_password')  # Default to 'your_redis_password' if not set in .env
+redis_url = f"redis://:{redis_password}@localhost:6379/0"
 
-load_dotenv()
+celery_app = Celery('tasks', broker=redis_url, backend=redis_url)
+
+# redis://mr-alireza:96243097@localhost:6379/0
+
+
 
 @celery_app.task
 def send_email_task(user_email: str, subject: str, content: str):
@@ -42,6 +49,9 @@ def check_and_send_emails():
     try:
         # Retrieve unsent letters
         letters = crud.get_unsent_latters(db)
+
+        # letters = crud.get_letters(db)
+        
         for letter in letters:
             users = crud.get_users(db)
             for user in users:
