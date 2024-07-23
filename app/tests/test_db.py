@@ -25,7 +25,7 @@ def test_database_operations():
 
     # Create a new letter
     letter_create = schemas.LetterCreate(title="Test Letter", content="This is a test letter.")
-    letter = crud.create_letter(db=db, letter=letter_create, user_id=user.id)
+    letter = crud.create_letter(db=db, letter=letter_create)
     print(f"Created Letter: {letter}")
 
     # Get letters
