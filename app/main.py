@@ -7,10 +7,25 @@ from app.model.models import Base
 from app.utils import crud, schemas
 from app.celery_worker import check_and_send_emails, send_past_emails_to_new_user
 
+from fastapi.middleware.cors import CORSMiddleware
+
 # Create tables if they don't exist
 # Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Set up CORS
+origins = [
+    "http://localhost:3000",  # React app running on this origin
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
